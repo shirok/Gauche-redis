@@ -313,7 +313,9 @@
   (redis-flushall redis)
   (redis-rpush redis "l0" "a" "b" "c" "d")
   (test* "redis-object-refcount" 1 (redis-object-refcount redis "l0"))
-  (test* "redis-object-encoding" "ziplist" (redis-object-encoding redis "l0"))
+  (test* "redis-object-encoding"
+         (test-one-of "ziplist" "listpack" "quicklist")
+         (redis-object-encoding redis "l0"))
   (test* "redis-object-idletime" #t (integer? (redis-object-idletime redis "l0")))
 
   (test-section "persist")
@@ -367,7 +369,8 @@
   (test* "redis-rename" 'OK (redis-rename redis 1 "one"))
   (test* "redis-rename(after)" #f (redis-get redis 1))
   (test* "redis-rename(after)" "一" (redis-get redis "one"))
-  (test* "redis-rename(same key)" (test-error) (redis-rename redis "one" "one"))
+  ;; This is allowed >= 3.2.0
+  ;; (test* "redis-rename(same key)" (test-error) (redis-rename redis "one" "one"))
   (test* "redis-rename(not exist)" (test-error) (redis-rename redis "ひとつ" "one"))
   (redis-rpush redis "ひとつ" "一つ" "一")
   (test* "redis-rename(overwrite)" 'OK (redis-rename redis "ひとつ" "one"))
@@ -381,7 +384,8 @@
   (test* "redis-renamenx" 1 (redis-renamenx redis 1 "one"))
   (test* "redis-renamenx(after)" #f (redis-get redis 1))
   (test* "redis-renamenx(after)" "一" (redis-get redis "one"))
-  (test* "redis-renamenx(same key)" (test-error) (redis-renamenx redis "one" "one"))
+  ;; This is allowed >= 3.2.0
+  ;; (test* "redis-renamenx(same key)" (test-error) (redis-renamenx redis "one" "one"))
   (test* "redis-renamenx(not exist)" (test-error) (redis-renamenx redis "ひとつ" "one"))
   (redis-rpush redis "ひとつ" "一つ" "一")
   (test* "redis-renamenx(exist)" 0 (redis-renamenx redis "ひとつ" "one"))
