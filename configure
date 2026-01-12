@@ -1,0 +1,36 @@
+#!/usr/bin/env gosh
+;; Configuring Gauche-redis
+;; Run ./configure (or gosh ./configure) to generate Makefiles.
+
+(use gauche.configure)
+(use util.match)
+
+;; Here you can define handlers of configure arguments by cf-arg-enable
+;; and cf-arg-with.  Note that --with-local is handled implicitly if you use
+;; cf-init-gauche-extension.
+(define *redis-server* #f)
+(cf-arg-with 'redis-server
+             (cf-help-string
+              "--with-redis-server=PATH"
+              "Path to redis-server executable")
+             (^(arg) (set! *redis-server* arg)))
+
+;; Initialize configure.  This creates the global context, parses
+;; command-line args and sets up default values.
+(cf-init-gauche-extension)
+
+;; Here you can add feature tests and other cf-define's.
+(match *redis-server*
+  ["no"  (warn "No REDIS_SERVER specified.  Tests will fail.\n")]
+  [(or #f "yes")
+   (cf-path-prog 'REDIS_SERVER "redis-server")
+   (unless (cf-have-subst? 'REDIS_SERVER)
+     (cf-msg-error "redis-server not found in PATH.  Please specify --with-redis-server option."))]
+  [_     (cf-subst 'REDIS_SERVER *redis-server*)])
+
+;; Output
+(cf-output-default)
+
+;; Local variables:
+;; mode: scheme
+;; end:

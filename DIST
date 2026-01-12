@@ -16,7 +16,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "$gen" = "yes" ]; then
-  autoconf
+# no longer need to run autoconf
 fi
 
 if [ "$tgz" = "yes" ]; then
